@@ -24,69 +24,79 @@ public class GamblingUtil {
      * 11~19表示一到九条
      * 21~29表示一到九万
      * 不带计算赖子判定一次是否是【黑摸】，再从手牌分开赖子和普通牌判定是否胡牌
+     *
      * @return
      */
-    public boolean huJudgment(List<Integer> cards, int laizi) {
-
-        return isHu(cards, laizi);
-    }
-
-
-    /**
-     * @param cards 手牌（除赖子）
-     * @param laizi 赖子数
-     * @return
-     */
-    public static boolean isHu(List<Integer> cards, int laizi) {
-        if ((cards.size() + laizi) % 3 != 2) {
-            //手牌数不是2、5、8、11、14不能胡牌（相公）
-            return false;
+    public static String huJudgment(List<Integer> cards, int laizi) {
+        String judgementResult = null;
+        int totalCards = cards.size() + laizi;
+        if (totalCards % 3 != 2) {
+            judgementResult = "XIANGGONG";
+        } else if (jiangJudgment(cards, laizi)) {
+            Collections.sort(cards);
+            judgementResult = "HU";
         }
-        //先排序，再进行胡牌判定
-        Collections.sort(cards);
-
-        for (int i = 0; i < cards.size(); i++) {
-            //和上一张是同样的牌时跳过，避免重复判定
-            if (i > 0 && cards.get(i).equals(cards.get(i - 1))) {
-                continue;
-            }
-            //先找对子、或者用赖子拼成的对子
-            if (i + 1 < cards.size() && cards.get(i).equals(cards.get(i + 1)) || laizi > 0) {
-                List<Integer> keOrShunCards = new ArrayList<Integer>(cards);
-                int keOrShunLaizi = laizi;
-                keOrShunCards.remove(i);
-                //从当前数组中把一对将牌移除，判断剩余的牌是否都能成刻子或顺子
-                if (keOrShunCards.size() > 0 && keOrShunCards.get(i).equals(cards.get(i))) {
-                    keOrShunCards.remove(i);
-                } else {
-                    keOrShunLaizi--;
-                }
-                if (isKeOrShun(keOrShunCards, keOrShunLaizi)) {
-                    return true;
-                }
-            }
-        }
-        //赖子作为将的情况
-        if (laizi >= 2 && isKeOrShun(cards, laizi - 2)) {
-            return true;
-        }
-        return false;
+        return judgementResult;
     }
 
     /**
-     * 递归判定牌组是否能组成顺子或者刻子
+     * 先判断有没有【将】，把牌中的【将】剔除再拿剩下的牌进行下一步判断
      *
      * @param cards
      * @param laizi
      * @return
      */
-    public static boolean isKeOrShun(List<Integer> cards, int laizi) {
+    public static boolean jiangJudgment(List<Integer> cards, int laizi) {
+        for (int i = 0; i < cards.size(); i++) {
+            //和上一张是同样的牌时跳过，避免重复判定
+            if (i > 0 && cards.get(i).equals(cards.get(i - 1))) {
+                continue;
+            }
+            //先找【将】、或者用赖子拼成的【将】
+            if (i < cards.size() || laizi > 0) {
+                //剩余的牌组
+                List<Integer> remainingCards = new ArrayList<Integer>(cards);
+                //剩余的赖子数
+                int remainingLaizi = laizi;
+                System.out.println("-------------------------------------------------------");
+                System.out.println("当前牌组：");
+                System.out.println(CardUtil.toString(remainingCards, laizi));
+                int currentCard = remainingCards.get(i);
+                System.out.println("移除牌：" + CardUtil.cardName(currentCard));
+                remainingCards.remove(i);
+                int sameCardIndex = remainingCards.indexOf(currentCard);
+                if (sameCardIndex > -1) {
+                    System.out.println("移除牌：" + CardUtil.cardName(remainingCards.get(sameCardIndex)));
+                    remainingCards.remove(sameCardIndex);
+                } else {
+                    System.out.println("移除牌：赖子");
+                    remainingLaizi--;
+                }
+                System.out.println("移除【将】后的牌组：");
+                System.out.println(CardUtil.toString(remainingCards, remainingLaizi));
+                System.out.println("-------------------------------------------------------");
+                if (shunJudgment(remainingCards, remainingLaizi) || keJudgment(remainingCards, remainingLaizi)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 判断牌组是否为【顺子】，移除【顺子】后判断剩余牌组是否为【刻子】
+     *
+     * @param cards
+     * @param laizi
+     * @return
+     */
+    public static boolean shunJudgment(List<Integer> cards, int laizi) {
         if (cards.size() == 0) {
             return true;
         }
-        //若第一张牌是顺子中的一张
+        //若牌组的第一张牌是顺子中的一张
         for (int first = cards.get(0) - 2; first <= cards.get(0); first++) {
-            //剪枝：顺子第一张牌不会大于七点，无赖子的情况下顺子第一张牌只能用手上的牌
+            //顺子中的第一张牌不会点数大于7，没有赖子的情况下，顺子中的第一张牌不会比牌组里第一张牌小
             if (first % 10 > 7 || (laizi == 0 && first < cards.get(0))) {
                 continue;
             }
@@ -96,25 +106,49 @@ public class GamblingUtil {
                     shunCount++;
                 }
             }
-            //找到包含第一张牌的顺子
+            //找到一个顺子
             if (shunCount == 3 || shunCount + laizi >= 3) {
-                List<Integer> keOrShunCards = new ArrayList<Integer>(cards);
-                int keOrShunLaizi = laizi;
+                //剩余的牌组
+                List<Integer> remainingCards = new ArrayList<Integer>(cards);
+                //剩余的赖子数
+                int remainingLaizi = laizi;
+                System.out.println("-------------------------------------------------------");
+                System.out.println("当前牌组：");
+                System.out.println(CardUtil.toString(remainingCards, laizi));
+                //从剩余牌组中移除顺子成员
                 for (int i = 0; i < 3; i++) {
-                    int deletePos = keOrShunCards.indexOf(first + i);
+                    //顺子成员所在位置下标
+                    int deletePos = remainingCards.indexOf(first + i);
                     if (deletePos >= 0) {
-                        keOrShunCards.remove(deletePos);
+                        System.out.println("移除牌：" + CardUtil.cardName(remainingCards.get(deletePos)));
+                        remainingCards.remove(deletePos);
                     } else {
-                        keOrShunLaizi--;
+                        System.out.println("移除牌：赖子");
+                        remainingLaizi--;
                     }
                 }
-                //剩下的牌是否成顺子或者刻子
-                if (isKeOrShun(keOrShunCards, keOrShunLaizi)) {
+                System.out.println("移除【顺子】后的牌组：");
+                System.out.println(CardUtil.toString(remainingCards, remainingLaizi));
+                System.out.println("-------------------------------------------------------");
+                //剩下的牌组进行刻子判断
+                if (shunJudgment(remainingCards, remainingLaizi) || keJudgment(remainingCards, remainingLaizi)) {
                     return true;
                 }
             }
         }
-        //若第一张是刻子中的一张
+        return false;
+    }
+
+    /**
+     * @param cards
+     * @param laizi
+     * @return
+     */
+    public static boolean keJudgment(List<Integer> cards, int laizi) {
+        if (cards.size() == 0) {
+            return true;
+        }
+        //若牌组的第一张牌是刻子中的一张
         int keziCount = 1;
         int keziCard = cards.get(0);
         if (cards.get(1) == keziCard) {
@@ -124,17 +158,29 @@ public class GamblingUtil {
             keziCount++;
         }
         if (keziCount == 3 || keziCount + laizi >= 3) {
-            List<Integer> keOrShunCards = new ArrayList<Integer>(cards);
-            int keOrShunLaizi = laizi;
+            //牌组剩余的牌
+            List<Integer> remainingCards = new ArrayList<Integer>(cards);
+            //剩余的赖子数
+            int remainingLaizi = laizi;
+            System.out.println("-------------------------------------------------------");
+            System.out.println("当前牌组：");
+            System.out.println(CardUtil.toString(remainingCards, laizi));
+            //从剩余牌组中移除刻子成员
             for (int i = 0; i < 3; i++) {
-                int deletePos = keOrShunCards.indexOf(keziCard);
+                //刻子成员所在的位置下标
+                int deletePos = remainingCards.indexOf(keziCard);
                 if (deletePos >= 0) {
-                    keOrShunCards.remove(deletePos);
+                    System.out.println("移除牌：" + remainingCards.get(deletePos));
+                    remainingCards.remove(deletePos);
                 } else {
-                    keOrShunLaizi--;
+                    System.out.println("移除牌：赖子");
+                    remainingLaizi--;
                 }
             }
-            if (isKeOrShun(keOrShunCards, keOrShunLaizi)) {
+            System.out.println("移除【刻子】后的牌组：");
+            System.out.println(CardUtil.toString(remainingCards, remainingLaizi));
+            System.out.println("-------------------------------------------------------");
+            if (shunJudgment(remainingCards, remainingLaizi) || keJudgment(remainingCards, remainingLaizi)) {
                 return true;
             }
         }

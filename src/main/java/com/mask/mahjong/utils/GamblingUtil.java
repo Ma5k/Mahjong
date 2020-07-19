@@ -1,8 +1,11 @@
 package com.mask.mahjong.utils;
 
+import com.mask.mahjong.Card;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 /**
  * 牌局工具类
@@ -10,6 +13,37 @@ import java.util.List;
  * @author Mask
  */
 public class GamblingUtil {
+
+    /**
+     * 创建牌池（洗牌新开一局）
+     * @return
+     */
+    public static List<Card> creatCardPool() {
+        List<Card> cards = new ArrayList<Card>(108);
+        List<Card> cardPool = new ArrayList<Card>(108);
+        for(int i = 0;i < 3;i++) {
+            for(int j = 1;j <= 9;j++) {
+                int cardNum = i * 10 + j;
+                for(int k = 1;k <= 4;k++) {
+                    Card card = new Card();
+                    card.setCardID(CardUtil.cardCode(cardNum) + "_" + k);
+                    card.setName(CardUtil.cardName(cardNum));
+                    card.setNumber(cardNum);
+                    card.setSuit(CardUtil.cardSuit(cardNum, false));
+                    card.setPoint(cardNum % 10);
+                    cards.add(card);
+                }
+            }
+        }
+
+        for(int i = 0;i < 108;i++) {
+            Random random = new Random();
+            int randomIndex = random.nextInt(cards.size());
+            cardPool.add(cards.get(randomIndex));
+            cards.remove(randomIndex);
+        }
+        return cardPool;
+    }
 
     /**
      * 发牌

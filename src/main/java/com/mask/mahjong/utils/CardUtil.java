@@ -9,8 +9,8 @@ public class CardUtil {
     public static String toString(List<Integer> cards, int laizi) {
         StringBuilder sb = new StringBuilder("|");
         for (int i = 0; i < cards.size();i++) {
-           sb.append(cardName(cards.get(i)));
-           sb.append("|");
+            sb.append(cardName(cards.get(i)));
+            sb.append("|");
         }
         for (int i =0; i < laizi; i++) {
             sb.append("赖子|");
@@ -18,56 +18,78 @@ public class CardUtil {
         return sb.toString();
     }
 
+    public static String cardCode(int cardNum) {
+        return cardPoint(cardNum,false) + "_" + cardSuit(cardNum,false);
+    }
+
     public static String cardName(int cardNum) {
-        StringBuilder sb = new StringBuilder();
+        return cardPoint(cardNum) + cardSuit(cardNum);
+    }
+
+    public static String cardPoint(int cardNum) {
+        return cardPoint(cardNum,true);
+    }
+
+    public static String cardPoint(int cardNum,boolean name) {
+        String point = null;
         int pointNum = cardNum % 10;
-        int suitNum = cardNum / 10;
         switch (pointNum) {
             case 1:
-                sb.append("一");
+                point = name?"一":"one";
                 break;
             case 2:
-                sb.append("二");
+                point = name?"二":"two";
                 break;
             case 3:
-                sb.append("三");
+                point = name?"三":"three";
                 break;
             case 4:
-                sb.append("四");
+                point = name?"四":"four";
                 break;
             case 5:
-                sb.append("五");
+                point = name?"五":"five";
                 break;
             case 6:
-                sb.append("六");
+                point = name?"六":"six";
                 break;
             case 7:
-                sb.append("七");
+                point = name?"七":"seven";
                 break;
             case 8:
-                sb.append("八");
+                point = name?"八":"eight";
                 break;
             case 9:
-                sb.append("九");
+                point = name?"九":"nine";
                 break;
             default:
-                sb.append("错误点数");
+                point = name?"错误点数":"error_point";
                 break;
         }
+        return point;
+    }
+
+    public static String cardSuit(int cardNum) {
+        return cardSuit(cardNum,true);
+    }
+
+    public static String cardSuit(int cardNum,boolean name) {
+        String suit = null;
+        int suitNum = cardNum / 10;
+
         switch (suitNum){
             case 0:
-                sb.append("筒");
+                suit = name?"筒":"tong";
                 break;
             case 1:
-                sb.append("条");
+                suit = name?"条":"tiao";
                 break;
             case 2:
-                sb.append("万");
+                suit = name?"万":"wan";
                 break;
             default:
-                sb.append("错误花色");
+                suit = name?"错误花色":"error_suit";
                 break;
         }
-        return sb.toString();
+        return suit;
     }
 }

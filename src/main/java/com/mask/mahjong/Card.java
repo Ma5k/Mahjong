@@ -25,6 +25,16 @@ public class Card {
     private int number;
 
     /**
+     * 麻将的点数
+     */
+    private int point;
+
+    /**
+     * 名称
+     */
+    private String name;
+
+    /**
      * 是否是赖子
      */
     private boolean laizi = false;

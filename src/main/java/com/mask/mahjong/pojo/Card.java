@@ -1,4 +1,4 @@
-package com.mask.mahjong;
+package com.mask.mahjong.pojo;
 
 import lombok.Data;
 

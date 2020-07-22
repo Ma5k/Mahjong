@@ -1,11 +1,15 @@
 package com.mask.mahjong.utils;
 
-import com.mask.mahjong.Card;
+import com.mask.mahjong.pojo.Card;
+import com.mask.mahjong.pojo.Player;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 /**
  * 牌局工具类
@@ -13,6 +17,8 @@ import java.util.Random;
  * @author Mask
  */
 public class GamblingUtil {
+
+    private static Logger logger = LoggerFactory.getLogger(GamblingUtil.class);
 
     /**
      * 创建牌池（洗牌新开一局）
@@ -45,11 +51,54 @@ public class GamblingUtil {
         return cardPool;
     }
 
-    /**
-     * 发牌
-     */
-    public void deal() {
 
+    /**
+     *
+     * @return
+     */
+    public static List<Player> createPlayers(){
+        List<Player> playerList = new ArrayList<Player>(4);
+        for(int i =0;i < 4;i++) {
+            Player player = new Player();
+            switch (i) {
+                case 0:
+                    player.setTurn(true);
+                    player.setDirection("east");
+                    break;
+                case 1:
+                    player.setDirection("south");
+                    break;
+                case 2:
+                    player.setDirection("west");
+                    break;
+                case 3:
+                    player.setDirection("north");
+                    break;
+                default:
+                    player.setDirection("error");
+                    break;
+            }
+            player.setHand(new ArrayList<Card>());
+            player.setPlayerID(UUID.randomUUID().toString());
+            player.setHand(new ArrayList<Card>());
+            player.setScore(0);
+            playerList.add(player);
+        }
+        return playerList;
+    }
+
+    /**
+     *
+     * @param players
+     * @return
+     */
+    public static Player getNextPlayer(List<Player> players) {
+        Player currentPlayer = players.stream().filter(player -> player.isTurn()).findFirst().get();
+        int currentPlayerIndex = players.indexOf(currentPlayer);
+        int nextPlayerIndex = currentPlayerIndex == players.size() - 1?0:currentPlayerIndex+1;
+        players.get(currentPlayerIndex).setTurn(false);
+        players.get(nextPlayerIndex).setTurn(true);
+        return players.get(nextPlayerIndex);
     }
 
     /**

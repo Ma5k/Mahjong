@@ -15,6 +15,11 @@ public class Card {
     private String cardID;
 
     /**
+     * 花色编号
+     */
+    private int suitNum;
+
+    /**
      * 麻将的花色
      */
     private String suit;

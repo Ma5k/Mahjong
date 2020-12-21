@@ -1,5 +1,6 @@
 package com.mask.mahjong.pojo;
 
+import com.mask.mahjong.utils.CardComparator;
 import com.mask.mahjong.utils.CardUtil;
 import lombok.Data;
 
@@ -43,6 +44,21 @@ public class Player {
      * 当前是否轮到
      */
     private boolean turn = false;
+
+    /**
+     * 摸牌
+     */
+    public void deal(int amount, Gambling gambling){
+        List<Card> cardPool = gambling.getCardPool();
+
+        for(int i = 0;i < amount;i++) {
+            Card topCard = cardPool.get(cardPool.size() - 1);
+            topCard.setOwner(this.getPlayerID());
+            cardPool.remove(topCard);
+            this.getHand().add(topCard);
+        }
+        this.getHand().sort(new CardComparator());
+    }
 
     @Override
     public String toString(){

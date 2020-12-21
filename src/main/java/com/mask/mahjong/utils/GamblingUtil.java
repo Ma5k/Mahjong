@@ -2,6 +2,7 @@ package com.mask.mahjong.utils;
 
 import com.mask.mahjong.pojo.Card;
 import com.mask.mahjong.pojo.Player;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,76 +17,8 @@ import java.util.UUID;
  *
  * @author Mask
  */
+@Slf4j
 public class GamblingUtil {
-
-    private static Logger logger = LoggerFactory.getLogger(GamblingUtil.class);
-
-    /**
-     * 创建牌池（洗牌新开一局）
-     * @return
-     */
-    public static List<Card> creatCardPool() {
-        List<Card> cards = new ArrayList<Card>(108);
-        List<Card> cardPool = new ArrayList<Card>(108);
-        for(int i = 0;i < 3;i++) {
-            for(int j = 1;j <= 9;j++) {
-                int cardNum = i * 10 + j;
-                for(int k = 1;k <= 4;k++) {
-                    Card card = new Card();
-                    card.setCardID(CardUtil.cardCode(cardNum) + "_" + k);
-                    card.setName(CardUtil.cardName(cardNum));
-                    card.setNumber(cardNum);
-                    card.setSuit(CardUtil.cardSuit(cardNum, false));
-                    card.setPoint(cardNum % 10);
-                    cards.add(card);
-                }
-            }
-        }
-
-        for(int i = 0;i < 108;i++) {
-            Random random = new Random();
-            int randomIndex = random.nextInt(cards.size());
-            cardPool.add(cards.get(randomIndex));
-            cards.remove(randomIndex);
-        }
-        return cardPool;
-    }
-
-
-    /**
-     *
-     * @return
-     */
-    public static List<Player> createPlayers(){
-        List<Player> playerList = new ArrayList<Player>(4);
-        for(int i =0;i < 4;i++) {
-            Player player = new Player();
-            switch (i) {
-                case 0:
-                    player.setTurn(true);
-                    player.setDirection("east");
-                    break;
-                case 1:
-                    player.setDirection("south");
-                    break;
-                case 2:
-                    player.setDirection("west");
-                    break;
-                case 3:
-                    player.setDirection("north");
-                    break;
-                default:
-                    player.setDirection("error");
-                    break;
-            }
-            player.setHand(new ArrayList<Card>());
-            player.setPlayerID(UUID.randomUUID().toString());
-            player.setHand(new ArrayList<Card>());
-            player.setScore(0);
-            playerList.add(player);
-        }
-        return playerList;
-    }
 
     /**
      *
@@ -110,7 +43,7 @@ public class GamblingUtil {
      *
      * @return
      */
-    public static String huJudgment(List<Integer> cards, int laizi) {
+    public String huJudgment(List<Integer> cards, int laizi) {
         String judgementResult = null;
         int totalCards = cards.size() + laizi;
         if (totalCards % 3 != 2) {
@@ -129,7 +62,7 @@ public class GamblingUtil {
      * @param laizi
      * @return
      */
-    public static boolean jiangJudgment(List<Integer> cards, int laizi) {
+    public boolean jiangJudgment(List<Integer> cards, int laizi) {
         for (int i = 0; i < cards.size(); i++) {
             //和上一张是同样的牌时跳过，避免重复判定
             if (i > 0 && cards.get(i).equals(cards.get(i - 1))) {
@@ -141,23 +74,23 @@ public class GamblingUtil {
                 List<Integer> remainingCards = new ArrayList<Integer>(cards);
                 //剩余的赖子数
                 int remainingLaizi = laizi;
-                System.out.println("-------------------------------------------------------");
-                System.out.println("当前牌组：");
-                System.out.println(CardUtil.toString(remainingCards, laizi));
+                log.info("-------------------------------------------------------");
+                log.info("当前牌组：");
+                log.info(CardUtil.toString(remainingCards, laizi));
                 int currentCard = remainingCards.get(i);
-                System.out.println("移除牌：" + CardUtil.cardName(currentCard));
+                log.info("移除牌：" + CardUtil.cardName(currentCard));
                 remainingCards.remove(i);
                 int sameCardIndex = remainingCards.indexOf(currentCard);
                 if (sameCardIndex > -1) {
-                    System.out.println("移除牌：" + CardUtil.cardName(remainingCards.get(sameCardIndex)));
+                    log.info("移除牌：" + CardUtil.cardName(remainingCards.get(sameCardIndex)));
                     remainingCards.remove(sameCardIndex);
                 } else {
-                    System.out.println("移除牌：赖子");
+                    log.info("移除牌：赖子");
                     remainingLaizi--;
                 }
-                System.out.println("移除【将】后的牌组：");
-                System.out.println(CardUtil.toString(remainingCards, remainingLaizi));
-                System.out.println("-------------------------------------------------------");
+                log.info("移除【将】后的牌组：");
+                log.info(CardUtil.toString(remainingCards, remainingLaizi));
+                log.info("-------------------------------------------------------");
                 if (shunJudgment(remainingCards, remainingLaizi) || keJudgment(remainingCards, remainingLaizi)) {
                     return true;
                 }
@@ -173,7 +106,7 @@ public class GamblingUtil {
      * @param laizi
      * @return
      */
-    public static boolean shunJudgment(List<Integer> cards, int laizi) {
+    public boolean shunJudgment(List<Integer> cards, int laizi) {
         if (cards.size() == 0) {
             return true;
         }
@@ -195,24 +128,24 @@ public class GamblingUtil {
                 List<Integer> remainingCards = new ArrayList<Integer>(cards);
                 //剩余的赖子数
                 int remainingLaizi = laizi;
-                System.out.println("-------------------------------------------------------");
-                System.out.println("当前牌组：");
-                System.out.println(CardUtil.toString(remainingCards, laizi));
+                log.info("-------------------------------------------------------");
+                log.info("当前牌组：");
+                log.info(CardUtil.toString(remainingCards, laizi));
                 //从剩余牌组中移除顺子成员
                 for (int i = 0; i < 3; i++) {
                     //顺子成员所在位置下标
                     int deletePos = remainingCards.indexOf(first + i);
                     if (deletePos >= 0) {
-                        System.out.println("移除牌：" + CardUtil.cardName(remainingCards.get(deletePos)));
+                        log.info("移除牌：" + CardUtil.cardName(remainingCards.get(deletePos)));
                         remainingCards.remove(deletePos);
                     } else {
-                        System.out.println("移除牌：赖子");
+                        log.info("移除牌：赖子");
                         remainingLaizi--;
                     }
                 }
-                System.out.println("移除【顺子】后的牌组：");
-                System.out.println(CardUtil.toString(remainingCards, remainingLaizi));
-                System.out.println("-------------------------------------------------------");
+                log.info("移除【顺子】后的牌组：");
+                log.info(CardUtil.toString(remainingCards, remainingLaizi));
+                log.info("-------------------------------------------------------");
                 //剩下的牌组进行刻子判断
                 if (shunJudgment(remainingCards, remainingLaizi) || keJudgment(remainingCards, remainingLaizi)) {
                     return true;
@@ -227,7 +160,7 @@ public class GamblingUtil {
      * @param laizi
      * @return
      */
-    public static boolean keJudgment(List<Integer> cards, int laizi) {
+    public boolean keJudgment(List<Integer> cards, int laizi) {
         if (cards.size() == 0) {
             return true;
         }
@@ -245,24 +178,24 @@ public class GamblingUtil {
             List<Integer> remainingCards = new ArrayList<Integer>(cards);
             //剩余的赖子数
             int remainingLaizi = laizi;
-            System.out.println("-------------------------------------------------------");
-            System.out.println("当前牌组：");
-            System.out.println(CardUtil.toString(remainingCards, laizi));
+            log.info("-------------------------------------------------------");
+            log.info("当前牌组：");
+            log.info(CardUtil.toString(remainingCards, laizi));
             //从剩余牌组中移除刻子成员
             for (int i = 0; i < 3; i++) {
                 //刻子成员所在的位置下标
                 int deletePos = remainingCards.indexOf(keziCard);
                 if (deletePos >= 0) {
-                    System.out.println("移除牌：" + remainingCards.get(deletePos));
+                    log.info("移除牌：" + remainingCards.get(deletePos));
                     remainingCards.remove(deletePos);
                 } else {
-                    System.out.println("移除牌：赖子");
+                    log.info("移除牌：赖子");
                     remainingLaizi--;
                 }
             }
-            System.out.println("移除【刻子】后的牌组：");
-            System.out.println(CardUtil.toString(remainingCards, remainingLaizi));
-            System.out.println("-------------------------------------------------------");
+            log.info("移除【刻子】后的牌组：");
+            log.info(CardUtil.toString(remainingCards, remainingLaizi));
+            log.info("-------------------------------------------------------");
             if (shunJudgment(remainingCards, remainingLaizi) || keJudgment(remainingCards, remainingLaizi)) {
                 return true;
             }

@@ -9,6 +9,16 @@ import java.util.UUID;
 @Data
 public class Room {
     /**
+     * 房间号
+     */
+    private String RoomID;
+
+    /**
+     * 房间名
+     */
+    private String RoomName;
+
+    /**
      * 玩家
      */
     private List<Player> playerList;
@@ -17,23 +27,6 @@ public class Room {
      * 牌局
      */
     private Gambling gambling;
-
-    public Room(){
-        this.playerList = createPlayers();
-        this.gambling = new Gambling();
-        for(int i = 0;i < 12;i++) {
-            Player currentPlayer =  this.playerList.stream().filter(Player::isTurn).findFirst().get();
-            currentPlayer.deal(4,this.gambling);
-            nextTurn();
-        }
-        for(int i = 0;i < 4;i++) {
-            Player currentPlayer =  this.playerList.stream().filter(Player::isTurn).findFirst().get();
-            currentPlayer.deal(1,this.gambling);
-            nextTurn();
-        }
-        Player currentPlayer =  this.playerList.stream().filter(Player::isTurn).findFirst().get();
-        currentPlayer.deal(1,this.gambling);
-    }
 
     /**
      *
@@ -76,16 +69,5 @@ public class Room {
         }
         this.playerList = playerList;
         return playerList;
-    }
-
-    private void nextTurn(){
-        Player currentPlayer = this.playerList.stream().filter(Player::isTurn).findFirst().get();
-        currentPlayer.setTurn(false);
-        int nextPlayerIndex = currentPlayer.getDirectionNum();
-        if(nextPlayerIndex == 3) {
-            this.playerList.get(0).setTurn(true);
-        } else {
-            this.playerList.get(nextPlayerIndex + 1).setTurn(true);
-        }
     }
 }

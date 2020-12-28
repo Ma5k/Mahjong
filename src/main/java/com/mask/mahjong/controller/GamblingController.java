@@ -49,15 +49,13 @@ public class GamblingController {
             for (int i = 0; i < 12; i++) {
                 Player currentPlayer = playerList.stream().filter(Player::isTurn).findFirst().get();
                 currentPlayer.deal(4, gambling);
-                gamblingService.nextTurn(playerList);
+                room.nextTurn();
             }
             for (int i = 0; i < 4; i++) {
                 Player currentPlayer = playerList.stream().filter(Player::isTurn).findFirst().get();
                 currentPlayer.deal(1, gambling);
-                gamblingService.nextTurn(playerList);
+                room.nextTurn();
             }
-            Player currentPlayer = playerList.stream().filter(Player::isTurn).findFirst().get();
-            currentPlayer.deal(1, gambling);
             resultMap.put("gambling",gambling);
         }
         return resultMap;

@@ -6,6 +6,7 @@ import com.mask.mahjong.utils.GamblingUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -17,7 +18,7 @@ import java.util.UUID;
  */
 @Data
 @Slf4j
-public class Gambling {
+public class Gambling implements Serializable {
 
     /**
      * 牌局ID

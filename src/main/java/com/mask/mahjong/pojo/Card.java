@@ -2,12 +2,14 @@ package com.mask.mahjong.pojo;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * 牌
  * @author Mask
  */
 @Data
-public class Card {
+public class Card implements Serializable {
 
     /**
      * 牌的id

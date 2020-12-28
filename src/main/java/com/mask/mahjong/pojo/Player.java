@@ -5,6 +5,7 @@ import com.mask.mahjong.utils.CardUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
  */
 @Data
 @Slf4j
-public class Player {
+public class Player implements Serializable {
 
     /**
      * 玩家ID
@@ -52,6 +53,11 @@ public class Player {
     private boolean turn = false;
 
     /**
+     * 是否已摸牌
+     */
+    private boolean dealt = false;
+
+    /**
      * 摸牌
      */
     public void deal(int amount, Gambling gambling){
@@ -80,16 +86,32 @@ public class Player {
         return sb.toString();
     }
 
-    public void play(Card card) {
+    public void play(String cardID) {
         if(!this.isTurn()){
             log.error("未轮到玩家【{}】出牌",this.getPlayerID());
-        }else if(!this.getHand().contains(card)) {
-            log.error("玩家【{}】手中没有【{}】，出牌失败！",this.getPlayerID(),card.getName());
+        }else if(!holdCard(cardID)) {
+            log.error("玩家【{}】手中没有【{}】，出牌失败！",this.getPlayerID(),cardID);
         } else {
+            Card card = getCard(cardID);
             card.setOpen(true);
             this.getHand().remove(card);
             this.getOpenedCards().add(card);
         }
     }
 
+    private Card getCard(String cardID) {
+        Card card = null;
+        if(holdCard(cardID)) {
+            card = hand.stream().filter(c -> c.getCardID().equals(cardID)).findFirst().get();
+        }
+        return card;
+    }
+
+    private boolean holdCard(String cardID) {
+        boolean holdCard = false;
+        if(hand.size() > 0) {
+            holdCard = hand.stream().anyMatch(card -> cardID.equals(card.getCardID()));
+        }
+        return holdCard;
+    }
 }

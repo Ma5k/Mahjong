@@ -1,13 +1,18 @@
 package com.mask.mahjong.pojo;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Data
-public class Room {
+@Slf4j
+@Cacheable(value = "room", key = "#id")
+public class Room implements Serializable {
     /**
      * 房间号
      */
@@ -69,5 +74,20 @@ public class Room {
         }
         this.playerList = playerList;
         return playerList;
+    }
+
+    public void nextTurn(){
+        if(playerList.stream().anyMatch(Player::isTurn)) {
+            Player currentPlayer = playerList.stream().filter(Player::isTurn).findFirst().get();
+            currentPlayer.setTurn(false);
+            int currentPlayerIndex = playerList.indexOf(currentPlayer);
+            if(currentPlayerIndex == 3) {
+                playerList.get(0).setTurn(true);
+            } else {
+                playerList.get(currentPlayerIndex + 1).setTurn(true);
+            }
+        } else {
+            log.error("错误：未轮到任何人！");
+        }
     }
 }

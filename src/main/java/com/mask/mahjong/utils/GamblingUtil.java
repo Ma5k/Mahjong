@@ -38,7 +38,7 @@ public class GamblingUtil {
      *
      * @return
      */
-    public String huJudgment(List<Integer> cards, int laizi) {
+    public static String huJudgment(List<Integer> cards, int laizi) {
         String judgementResult = null;
         int totalCards = cards.size() + laizi;
         if (totalCards % 3 != 2) {
@@ -57,7 +57,7 @@ public class GamblingUtil {
      * @param laizi
      * @return
      */
-    public boolean jiangJudgment(List<Integer> cards, int laizi) {
+    public static boolean jiangJudgment(List<Integer> cards, int laizi) {
         for (int i = 0; i < cards.size(); i++) {
             //和上一张是同样的牌时跳过，避免重复判定
             if (i > 0 && cards.get(i).equals(cards.get(i - 1))) {
@@ -101,7 +101,7 @@ public class GamblingUtil {
      * @param laizi
      * @return
      */
-    public boolean shunJudgment(List<Integer> cards, int laizi) {
+    public static boolean shunJudgment(List<Integer> cards, int laizi) {
         if (cards.size() == 0) {
             return true;
         }
@@ -155,7 +155,7 @@ public class GamblingUtil {
      * @param laizi
      * @return
      */
-    public boolean keJudgment(List<Integer> cards, int laizi) {
+    public static boolean keJudgment(List<Integer> cards, int laizi) {
         if (cards.size() == 0) {
             return true;
         }
